@@ -208,8 +208,10 @@ public class CompetitionStarter {
 
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		//ゲーム試行回数
-		int gameNum=10;
+		int gameNum=1000;
+		//実行引数があればそれを試行回数に
 		if(args.length==1) gameNum=Integer.parseInt(args[0]);
+		
 		CompetitionStarter starter=new CompetitionStarter(gameNum);
 		
 		//プレイヤークラスの追加
@@ -233,8 +235,11 @@ public class CompetitionStarter {
 		//starter.addClass(Class.forName("com.canvassoft.Agent.CanvasRoleAssignPlayer")); //CanvasSoft //ログ
 		
 		System.out.println(starter.getPlayerNum()+"人");
+		//コンソールログを表示しない,ゲームログを保存する
 		starter.gameStart(false,true);
+		//結果をコンソールログで表示
 		starter.printwinLoseCounterMap();
+		//CSVファイルを生成
 		starter.writeToCSVFile();
 	}
 
