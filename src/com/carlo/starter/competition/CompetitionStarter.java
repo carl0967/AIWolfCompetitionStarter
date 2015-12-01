@@ -145,7 +145,7 @@ public class CompetitionStarter {
 			fw = new FileWriter("csv/"+timeString+".csv", false);
 			PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
 			pw.println("試行回数,"+gameNum);
-			pw.println("獲得勝利ポイント(平均勝率-勝率)");
+			pw.println("獲得勝利ポイント(勝率-平均勝率)");
 			pw.println("PlayerName,狩人,霊能者,狂人,占い師,村人,人狼,合計");
 			for(Entry<Class, RoleWinLoseCounter> classEntry : winLoseCounterMap.entrySet()) {
 				pw.print(classEntry.getValue().getName());
