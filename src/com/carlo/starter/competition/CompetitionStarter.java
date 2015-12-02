@@ -222,7 +222,6 @@ public class CompetitionStarter {
 		starter.addClass(Class.forName("com.gmail.jinro.noppo.players.RoleAssignPlayer"),"働きの悪"); 
 		starter.addClass(Class.forName("org.aiwolf.Satsuki.LearningPlayer.AIWolfMain"),"Satuki"); 
 		starter.addClass(Class.forName("jp.ac.shibaura_it.ma15082.WasabiPlayer"),"Wasabi"); 
-		starter.addClass(Class.forName("com.carlo.bayes.player.BayesPlayer"));
 		starter.addClass(Class.forName("takata.player.TakataRoleAssignPlayer"),"GofukuLab");
 		starter.addClass(Class.forName("ipa.myAgent.IPARoleAssignPlayer"));
 		starter.addClass(Class.forName("org.aiwolf.iace10442.ChipRoleAssignPlayer"),"iace10442"); 
@@ -231,7 +230,7 @@ public class CompetitionStarter {
 		starter.addClass(Class.forName("com.github.haretaro.pingwo.role.PingwoRoleAssignPlayer"),"平兀"); 
 		starter.addClass(Class.forName("com.gmail.the.seventh.layers.RoleAssignPlayer"),"Fenrir"); 
 		starter.addClass(Class.forName("jp.ac.cu.hiroshima.info.cm.nakamura.player.NoriRoleAssignPlayer"),"中村人");
-		//starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer")); //昼休みはいつも人狼でつぶれる
+		starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer")); //昼休みはいつも人狼でつぶれる
 		//starter.addClass(Class.forName("com.canvassoft.Agent.CanvasRoleAssignPlayer")); //CanvasSoft //ログ
 		
 		System.out.println(starter.getPlayerNum()+"人");
