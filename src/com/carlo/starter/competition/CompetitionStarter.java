@@ -70,7 +70,9 @@ public class CompetitionStarter {
 		
 		//game 
 		for(int i = 0;i<gameNum;i++){
-			//roleListをシャッフル(役職を変えるため) NOTE:ランダムじゃなくて、各エージェントが同じ回数役職をやるように操作したほうがいい？
+			//今どれだけゲームを行ったかを表示
+			if(i%1000==0) System.out.println(i+"/"+gameNum);
+			//roleListをシャッフル(役職を変えるため) 
 			Collections.shuffle(roleList);
 			Map<Player, Role> playerMap = new HashMap<Player, Role>();
 			Map<Class,Role> classMap=new HashMap<Class,Role>();
@@ -208,38 +210,60 @@ public class CompetitionStarter {
 
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		//ゲーム試行回数
-		int gameNum=1000;
-		//実行引数があればそれを試行回数に
-		if(args.length==1) gameNum=Integer.parseInt(args[0]);
+		int gameNum = 10;
+		//ゲームログを保存するか
+		boolean isSaveLog=false;
+		//ゲームの経過をコンソールで表示するか
+		boolean isShowConsoleLog=false;
+		
+		// 実行時引数で、動作を変えることもできます。
+		// 例 -n 100 -l -s	:ゲーム試行回数100回、ゲームログを保存、コンソールログを表示
+		// 例　-n 10		:ゲーム試行回数10回、ゲームログを保存しない、コンソールログを表示しない
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].startsWith("-")) {
+				if (args[i].equals("-n")) {
+					i++;
+					gameNum = Integer.parseInt(args[i]);
+				}
+				else if(args[i].equals("-l")){
+					isSaveLog=true;
+				}
+				else if(args[i].equals("-s")){
+					isShowConsoleLog=true;
+				}
+			}
+		}
 		
 		CompetitionStarter starter=new CompetitionStarter(gameNum);
 		
 		//プレイヤークラスの追加
-		starter.addClass(Class.forName("org.aiwolf.client.base.smpl.SampleRoleAssignPlayer"));
-		starter.addClass(Class.forName("com.yy.player.YYRoleAssignPlayer"));
+		starter.addClass(Class.forName("org.aiwolf.client.base.smpl.SampleRoleAssignPlayer"),"サンプル");
+		starter.addClass(Class.forName("com.yy.player.YYRoleAssignPlayer"),"YY");
 		starter.addClass(Class.forName("jp.halfmoon.inaba.aiwolf.strategyplayer.StrategyPlayer"),"饂飩"); 
 		starter.addClass(Class.forName("org.aiwolf.kajiClient.LearningPlayer.KajiRoleAssignPlayer"));
 		starter.addClass(Class.forName("com.gmail.jinro.noppo.players.RoleAssignPlayer"),"働きの悪"); 
 		starter.addClass(Class.forName("org.aiwolf.Satsuki.LearningPlayer.AIWolfMain"),"Satuki"); 
-		starter.addClass(Class.forName("jp.ac.shibaura_it.ma15082.WasabiPlayer"),"Wasabi"); 
+		starter.addClass(Class.forName("jp.ac.shibaura_it.ma15082.WasabiRoleAssignPlayer"),"Wasabi"); 
 		starter.addClass(Class.forName("takata.player.TakataRoleAssignPlayer"),"GofukuLab");
-		starter.addClass(Class.forName("ipa.myAgent.IPARoleAssignPlayer"));
+		starter.addClass(Class.forName("ipa.myAgent.IPARoleAssignPlayer"),"IPA");
 		starter.addClass(Class.forName("org.aiwolf.iace10442.ChipRoleAssignPlayer"),"iace10442"); 
 		starter.addClass(Class.forName("kainoueAgent.MyRoleAssignPlayer"),"swingby"); //swingby
-		//starter.addClass(Class.forName("jp.ac.aitech.k13009kk.aiwolf.client.player.AndoRoleAssignPlayer")); //itolab //ログ出力
+		//starter.addClass(Class.forName("jp.ac.aitech.k13009kk.aiwolf.client.player.AndoRoleAssignPlayer")); 
 		starter.addClass(Class.forName("com.github.haretaro.pingwo.role.PingwoRoleAssignPlayer"),"平兀"); 
 		starter.addClass(Class.forName("com.gmail.the.seventh.layers.RoleAssignPlayer"),"Fenrir"); 
-		starter.addClass(Class.forName("jp.ac.cu.hiroshima.info.cm.nakamura.player.NoriRoleAssignPlayer"),"中村人");
-		starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer")); //昼休みはいつも人狼でつぶれる
-		//starter.addClass(Class.forName("com.canvassoft.Agent.CanvasRoleAssignPlayer")); //CanvasSoft //ログ
 		
-		System.out.println(starter.getPlayerNum()+"人");
-		//コンソールログを表示しない,ゲームログを保存する
-		starter.gameStart(false,true);
+		starter.addClass(Class.forName("jp.ac.cu.hiroshima.info.cm.nakamura.player.NoriRoleAssignPlayer"),"中村人");
+		starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer"),"昼休み"); 
+		//starter.addClass(Class.forName("com.canvassoft.Agent.CanvasRoleAssignPlayer")); //CanvasSoft 
+		//starter.addClass(Class.forName("jp.ac.cu.hiroshima.inaba.agent.InabaAgent"),"chime"); 
+		
+		System.out.println(starter.getPlayerNum()+"人で"+gameNum+"回ゲームを行います。");
+		starter.gameStart(isShowConsoleLog,isSaveLog);
 		//結果をコンソールログで表示
 		starter.printwinLoseCounterMap();
 		//CSVファイルを生成
 		starter.writeToCSVFile();
+	
 	}
 
 }
