@@ -34,7 +34,8 @@ public class CompetitionStarter {
 	private  int gameNum = 1;
 	ArrayList<Class> playerClasses=new ArrayList<Class>();
 	Map<Class,RoleWinLoseCounter> winLoseCounterMap; 
-	//Map<Class,String> classNameMap;
+	
+	Map<Class,Integer> classNumMap;
 	/**
 	 * @param gameNum 試合回数
 	 */
@@ -42,17 +43,36 @@ public class CompetitionStarter {
 		this.gameNum=gameNum;
 		winLoseCounterMap=new LinkedHashMap<Class,RoleWinLoseCounter>();
 		
+		classNumMap=new HashMap<Class,Integer>();
+		
 	}
 	public void addClass(Class playerClass){
-		playerClasses.add(playerClass);
-		winLoseCounterMap.put(playerClass, new RoleWinLoseCounter(playerClass.getSimpleName()));
+		addClass(playerClass,playerClass.getSimpleName(),1);
 	}
 	public void addClass(Class playerClass,String name){
+		addClass(playerClass,name,1);
+	}
+	/**
+	 * 
+	 * @param playerClass エージェントのクラスファイル
+	 * @param name エージェント名。指定がなければクラス名で表示される。
+	 * @param num そのクラスのエージェントを何体ゲームに参加させるか
+	 */
+	public void addClass(Class playerClass,String name,int num){
 		playerClasses.add(playerClass);
 		winLoseCounterMap.put(playerClass, new RoleWinLoseCounter(name));
+		classNumMap.put(playerClass, num);
 	}
+	/**
+	 * 
+	 * @return ゲームに参加する総エージェント数（同一クラスを含む）
+	 */
 	public int getPlayerNum(){
-		return playerClasses.size();
+		int playerNum=0;
+		for(Entry<Class,Integer> classEntry : classNumMap.entrySet()) {
+			playerNum+=classEntry.getValue();
+		}
+		return playerNum;
 	}
 	
 	Map<Role,Double> averageMap;
@@ -64,7 +84,7 @@ public class CompetitionStarter {
 	 * @throws IllegalAccessException
 	 */
 	public void gameStart(boolean isShowConsoleLog,boolean isSaveGameLog) throws InstantiationException, IllegalAccessException{
-		RoleManager manager=new RoleManager(playerClasses.size());
+		RoleManager manager=new RoleManager(getPlayerNum());
 		ArrayList<Role> roleList=manager.getRoleList();
 		//System.out.println(roleList);
 		
@@ -74,15 +94,21 @@ public class CompetitionStarter {
 			if(i%1000==0) System.out.println(i+"/"+gameNum);
 			//roleListをシャッフル(役職を変えるため) 
 			Collections.shuffle(roleList);
+			
 			Map<Player, Role> playerMap = new HashMap<Player, Role>();
-			Map<Class,Role> classMap=new HashMap<Class,Role>();
-			for(int j=0;j<playerClasses.size();j++){
-				playerMap.put((Player) playerClasses.get(j).newInstance(),roleList.get(j));
-				classMap.put(playerClasses.get(j), roleList.get(j));
+			//Roleを順番にとってくるためのインデックス
+			int j=0;
+			//登録されたエージェントクラスごとの処理
+			for(Entry<Class,Integer> classEntry : classNumMap.entrySet()) {
+				//指定された数参加させる
+				for(int k=0;k<classEntry.getValue();k++){
+					playerMap.put((Player)classEntry.getKey().newInstance(),roleList.get(j));
+					j++;
+				}
 			}
 			
 			GameServer gameServer = new DirectConnectServer(playerMap);
-			GameSetting gameSetting = GameSetting.getDefaultGame(playerClasses.size());
+			GameSetting gameSetting = GameSetting.getDefaultGame(getPlayerNum());
 			AIWolfGame game = new AIWolfGame(gameSetting, gameServer);
 			game.setShowConsoleLog(isShowConsoleLog);
 			
@@ -97,16 +123,21 @@ public class CompetitionStarter {
 				}
 			}
 			
+			
+			
 			game.setRand(new Random(gameSetting.getRandomSeed()));
 			game.start();
 			
 			//勝敗結果格納
-			for(Map.Entry<Class, Role> entry : classMap.entrySet()) {
-				Class playerClass=entry.getKey();
+			for(Map.Entry<Player, Role> entry :playerMap.entrySet()){
+				Class playerClass=entry.getKey().getClass();
 				Role playerRole=entry.getValue();
+				//System.out.println(winLoseCounterMap.get(playerClass).getName()+playerRole);
 				winLoseCounterMap.get(playerClass).endGame(game.getWinner(), playerRole);
+				
 			}
 
+			
 		}
 		//結果処理
 	calcResult();
@@ -117,6 +148,7 @@ public class CompetitionStarter {
 		System.out.println("プレイヤーの名前\t\t\t狩人\t霊能者\t狂人\t占い師\t村人\t人狼\t合計");
 		for(Entry<Class, RoleWinLoseCounter> classEntry : winLoseCounterMap.entrySet()) {
 			String name=classEntry.getValue().getName();
+			//タブの位置を調整しようと頑張った結果
 			int block= 4-(name.length()/8);
 			if(name.length()%8!=0) block--;
 			System.out.print(name);
@@ -218,7 +250,7 @@ public class CompetitionStarter {
 		
 		// コマンドライン引数で、動作を変えることもできます。
 		// 例 -n 100 -l -s	:ゲーム試行回数100回、ゲームログを保存、コンソールログを表示
-		// 例　-n 10		:ゲーム試行回数10回、ゲームログを保存しない、コンソールログを表示しない
+		// 例　-n 10		:ゲーム試行回数10回、ゲームログを保存しない(デフォルト)、コンソールログを表示しない(デフォルト)
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].startsWith("-")) {
 				if (args[i].equals("-n")) {
@@ -237,11 +269,11 @@ public class CompetitionStarter {
 		CompetitionStarter starter=new CompetitionStarter(gameNum);
 		
 		//プレイヤークラスの追加
-		starter.addClass(Class.forName("org.aiwolf.client.base.smpl.SampleRoleAssignPlayer"),"サンプル");
+		starter.addClass(Class.forName("org.aiwolf.client.base.smpl.SampleRoleAssignPlayer"),"サンプル",3);
 		starter.addClass(Class.forName("com.yy.player.YYRoleAssignPlayer"),"YY");
 		starter.addClass(Class.forName("jp.halfmoon.inaba.aiwolf.strategyplayer.StrategyPlayer"),"饂飩"); 
-		starter.addClass(Class.forName("org.aiwolf.kajiClient.LearningPlayer.KajiRoleAssignPlayer"));
-		starter.addClass(Class.forName("com.gmail.jinro.noppo.players.RoleAssignPlayer"),"働きの悪"); 
+		//starter.addClass(Class.forName("org.aiwolf.kajiClient.LearningPlayer.KajiRoleAssignPlayer"));
+		//starter.addClass(Class.forName("com.gmail.jinro.noppo.players.RoleAssignPlayer"),"働きの悪"); 
 		starter.addClass(Class.forName("org.aiwolf.Satsuki.LearningPlayer.AIWolfMain"),"Satuki"); 
 		starter.addClass(Class.forName("jp.ac.shibaura_it.ma15082.WasabiRoleAssignPlayer"),"Wasabi"); 
 		starter.addClass(Class.forName("takata.player.TakataRoleAssignPlayer"),"GofukuLab");
