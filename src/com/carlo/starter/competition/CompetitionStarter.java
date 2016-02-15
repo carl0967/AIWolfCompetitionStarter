@@ -269,8 +269,11 @@ public class CompetitionStarter {
 		CompetitionStarter starter=new CompetitionStarter(gameNum);
 		
 		//プレイヤークラスの追加
+		//サンプルプレイヤーを1ゲームに３体追加する
+		//複数体追加した場合、結果の集計は合算
 		starter.addClass(Class.forName("org.aiwolf.client.base.smpl.SampleRoleAssignPlayer"),"サンプル",3);
-		starter.addClass(Class.forName("com.yy.player.YYRoleAssignPlayer"),"YY");
+		//YYを2体
+		starter.addClass(Class.forName("com.yy.player.YYRoleAssignPlayer"),"YY",2);
 		starter.addClass(Class.forName("jp.halfmoon.inaba.aiwolf.strategyplayer.StrategyPlayer"),"饂飩"); 
 		//starter.addClass(Class.forName("org.aiwolf.kajiClient.LearningPlayer.KajiRoleAssignPlayer"));
 		//starter.addClass(Class.forName("com.gmail.jinro.noppo.players.RoleAssignPlayer"),"働きの悪"); 
@@ -285,7 +288,7 @@ public class CompetitionStarter {
 		starter.addClass(Class.forName("com.gmail.the.seventh.layers.RoleAssignPlayer"),"Fenrir"); 
 		
 		starter.addClass(Class.forName("jp.ac.cu.hiroshima.info.cm.nakamura.player.NoriRoleAssignPlayer"),"中村人");
-		starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer"),"昼休み"); 
+		//starter.addClass(Class.forName("com.gmail.octobersky.MyRoleAssignPlayer"),"昼休み"); 
 		//starter.addClass(Class.forName("com.canvassoft.Agent.CanvasRoleAssignPlayer")); //CanvasSoft 
 		//starter.addClass(Class.forName("jp.ac.cu.hiroshima.inaba.agent.InabaAgent"),"chime"); 
 		
